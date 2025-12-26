@@ -1,0 +1,221 @@
+import React, { useState } from 'react';
+import { Plus, X, Wallet, ArrowUpCircle, ArrowDownCircle, PiggyBank } from 'lucide-react';
+
+// --- ส่วนที่ 1: Component แบบ Modal (หน้าต่างเด้ง) ---
+function AddTransactionModal({ isOpen, onClose, onSave }) {
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    const newData = {
+      title: formData.get('title'),
+      amount: formData.get('amount'),
+      date: formData.get('date'),
+      type: formData.get('type'),
+    };
+
+    if (!newData.title || !newData.amount) {
+        alert("กรอกข้อมูลให้ครบก่อนนะครับ");
+        return;
+    }
+
+    onSave(newData);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="bg-indigo-600 p-4 flex justify-between items-center">
+          <h3 className="text-white font-bold text-lg flex items-center gap-2">
+            <Plus className="w-5 h-5" /> เพิ่มรายการใหม่
+          </h3>
+          <button onClick={onClose} className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full">
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-500 mb-1 block">ชื่อรายการ</label>
+            <input name="title" type="text" placeholder="เช่น ค่าข้าว, เงินเดือน" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" autoFocus />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-slate-500 mb-1 block">จำนวนเงิน</label>
+              <input name="amount" type="number" placeholder="0.00" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-500 mb-1 block">วันที่</label>
+              <input name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-500 mb-2 block">ประเภท</label>
+            <div className="grid grid-cols-3 gap-2">
+              <label className="cursor-pointer">
+                <input type="radio" name="type" value="income" className="peer sr-only" />
+                <div className="py-2 px-1 text-center border-2 border-slate-100 rounded-xl text-sm font-medium text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-600 transition-all hover:bg-slate-50">
+                   รายรับ
+                </div>
+              </label>
+              <label className="cursor-pointer">
+                <input type="radio" name="type" value="expense" defaultChecked className="peer sr-only" />
+                <div className="py-2 px-1 text-center border-2 border-slate-100 rounded-xl text-sm font-medium text-slate-400 peer-checked:border-rose-500 peer-checked:bg-rose-50 peer-checked:text-rose-600 transition-all hover:bg-slate-50">
+                   รายจ่าย
+                </div>
+              </label>
+              <label className="cursor-pointer">
+                <input type="radio" name="type" value="savings" className="peer sr-only" />
+                <div className="py-2 px-1 text-center border-2 border-slate-100 rounded-xl text-sm font-medium text-slate-400 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all hover:bg-slate-50">
+                   เงินออม
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all mt-2">
+            บันทึกรายการ
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// --- ส่วนที่ 2: หน้าจอหลัก ---
+export default function App() {
+  const [transactions, setTransactions] = useState([
+    { id: 1, title: 'เงินเดือน', amount: 25000, type: 'income', date: '2023-10-25' },
+    { id: 2, title: 'ค่าหอพัก', amount: 4500, type: 'expense', date: '2023-10-26' },
+    { id: 3, title: 'ฝากประจำ', amount: 2000, type: 'savings', date: '2023-10-27' },
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddTransaction = (newData) => {
+    setTransactions([{ ...newData, id: Date.now() }, ...transactions]);
+  };
+
+  // ✅ คำนวณแยก 4 ยอด
+  const { balance, income, expense, savings } = transactions.reduce((acc, t) => {
+    const amt = Number(t.amount);
+    if(t.type === 'income') { 
+        acc.income += amt; 
+        acc.balance += amt; 
+    }
+    else if(t.type === 'expense') { 
+        acc.expense += amt; 
+        acc.balance -= amt; 
+    }
+    else if(t.type === 'savings') { 
+        acc.savings += amt; 
+        acc.balance -= amt; 
+    }
+    return acc;
+  }, { balance: 0, income: 0, expense: 0, savings: 0 });
+
+  return (
+    <div className="min-h-screen bg-slate-100 font-sans pb-24 relative">
+      
+      {/* Background สีน้ำเงิน */}
+      <div className="bg-indigo-600 h-48 rounded-b-[2.5rem] relative">
+         <div className="px-6 pt-8 flex justify-between items-center text-white">
+            <h1 className="text-xl font-bold opacity-90">My Wallet</h1>
+            <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">👤</div>
+         </div>
+      </div>
+
+      {/* 🔥 แก้ไขจุดนี้: เติม relative z-10 เพื่อให้ลอยทับสีม่วง */}
+      <div className="px-6 -mt-24 mb-6 relative z-10">
+        <div className="bg-white rounded-3xl shadow-xl p-6 text-slate-800">
+            
+            {/* โซนบน: ยอดคงเหลือ */}
+            <div className="text-center mb-6">
+                <p className="text-slate-500 text-sm mb-1">ยอดเงินคงเหลือสุทธิ</p>
+                <h2 className={`text-4xl font-bold ${balance < 0 ? 'text-red-600' : 'text-slate-900'}`}>
+                    ฿{balance.toLocaleString()}
+                </h2>
+            </div>
+
+            {/* เส้นแบ่ง */}
+            <div className="h-px bg-slate-100 mb-6"></div>
+
+            {/* โซนล่าง: รายรับ | รายจ่าย | เงินออม */}
+            <div className="flex justify-around items-start">
+                
+                {/* รายรับ */}
+                <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-1">
+                        <ArrowUpCircle size={20} />
+                    </div>
+                    <span className="text-xs text-slate-400">รายรับ</span>
+                    <span className="font-bold text-emerald-600 text-sm">+{income.toLocaleString()}</span>
+                </div>
+
+                {/* รายจ่าย */}
+                <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-1">
+                        <ArrowDownCircle size={20} />
+                    </div>
+                    <span className="text-xs text-slate-400">รายจ่าย</span>
+                    <span className="font-bold text-rose-600 text-sm">-{expense.toLocaleString()}</span>
+                </div>
+
+                {/* เงินออม */}
+                <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-1">
+                        <PiggyBank size={20} />
+                    </div>
+                    <span className="text-xs text-slate-400">เงินออม</span>
+                    <span className="font-bold text-blue-600 text-sm">{savings.toLocaleString()}</span>
+                </div>
+
+            </div>
+        </div>
+      </div>
+
+      {/* รายการธุรกรรม */}
+      <div className="px-6">
+        <h3 className="font-bold text-slate-700 mb-4">ประวัติล่าสุด</h3>
+        <div className="space-y-3">
+          {transactions.map(t => (
+            <div key={t.id} className="bg-white p-4 rounded-xl shadow-sm flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.type==='income'?'bg-emerald-100 text-emerald-600':t.type==='expense'?'bg-rose-100 text-rose-600':'bg-blue-100 text-blue-600'}`}>
+                    {t.type==='income' ? <ArrowUpCircle size={20}/> : t.type==='expense' ? <ArrowDownCircle size={20}/> : <PiggyBank size={20}/>}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-800">{t.title}</p>
+                    <p className="text-xs text-slate-400">{t.date}</p>
+                  </div>
+               </div>
+               <span className={`font-bold ${t.type==='income'?'text-emerald-500':t.type==='expense'?'text-rose-500':'text-blue-500'}`}>
+                 {t.type==='income'?'+':'-'}{Number(t.amount).toLocaleString()}
+               </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button 
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-6 right-6 w-16 h-16 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform active:scale-90 z-40"
+      >
+        <Plus size={32} />
+      </button>
+
+      <AddTransactionModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSave={handleAddTransaction} 
+      />
+
+    </div>
+  );
+}
