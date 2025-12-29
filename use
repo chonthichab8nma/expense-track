@@ -1,0 +1,62 @@
+import { useState, useMemo } from 'react';
+
+// กำหนดหน้าตาข้อมูล (Type)
+export interface Transaction {
+  id: number;
+  title: string;
+  amount: number;
+  type: 'income' | 'expense' | 'savings';
+  date: string;
+}
+
+export function useTransaction() {
+  // 1. State เก็บข้อมูลรายการ
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    { id: 1, title: 'เงินเดือน', amount: 25000, type: 'income', date: '2023-10-25' },
+    { id: 2, title: 'ค่าหอพัก', amount: 4500, type: 'expense', date: '2023-10-26' },
+    { id: 3, title: 'ฝากประจำ', amount: 2000, type: 'savings', date: '2023-10-27' },
+  ]);
+
+  // 2. ฟังก์ชันเพิ่มรายการ
+  const addTransaction = (newData: Omit<Transaction, 'id'>) => {
+    const transaction: Transaction = {
+      ...newData,
+      id: Date.now(), // สร้าง ID
+    };
+    setTransactions([transaction, ...transactions]);
+  };
+
+  // 3. ฟังก์ชันลบรายการ (แถมให้)
+  const deleteTransaction = (id: number) => {
+    setTransactions(transactions.filter((t) => t.id !== id));
+  };
+
+  // 4. Logic คำนวณยอดเงิน (Derived State)
+  const stats = useMemo(() => {
+    return transactions.reduce(
+      (acc, t) => {
+        const amt = Number(t.amount);
+        if (t.type === 'income') {
+          acc.income += amt;
+          acc.balance += amt;
+        } else if (t.type === 'expense') {
+          acc.expense += amt;
+          acc.balance -= amt;
+        } else if (t.type === 'savings') {
+          acc.savings += amt;
+          acc.balance -= amt; // หักเงินออกจากกระเป๋าไปเข้ากระปุก
+        }
+        return acc;
+      },
+      { balance: 0, income: 0, expense: 0, savings: 0 }
+    );
+  }, [transactions]);
+
+  // ส่งค่าออกไปให้ UI ใช้
+  return {
+    transactions,
+    stats,
+    addTransaction,
+    deleteTransaction,
+  };
+}

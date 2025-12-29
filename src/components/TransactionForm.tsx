@@ -1,63 +1,118 @@
-import { useTransaction } from "./useTransaction";
+import React, { useState } from "react";
+import { Plus, X } from "lucide-react";
+import type { Transaction, TransactionType } from "./useTransaction";
 
-export default function TransactionForm() {
-  
- 
-  const { title, setTitle, amount, setAmount, type, setType, handleSave ,date,setDate } = useTransaction();
-  
+interface FormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (tx: Transaction) => void;
+}
+
+export function TransactionForm({ isOpen, onClose, onSave }: FormProps) {
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [type, setType] = useState<TransactionType>("income");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !amount) return;
+
+    onSave({
+      id: Date.now(),
+      title,
+      amount: Number(amount),
+      type,
+      date,
+    });
+
+    setTitle("");
+    setAmount("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-greenbloom rounded-2xl p-8 w-full max-w-md shadow-lg">
-        <h1 className="text-2xl font-bold text-center mb-6 text-cream">รายรับ-รายจ่าย <span className="text-sm font-normal text-gray-500 bg-pink px-3 py-1 rounded-full">
-               วันที่: {date}
-            </span></h1>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-sm bg-cream rounded-3xl shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 bg-cream">
+          <h3 className="text-pinkold font-semibold flex items-center gap-2">
+            <Plus size={18} />
+            เพิ่มรายการใหม่
+          </h3>
+          <button onClick={onClose} className="text-pinkold hover:opacity-80">
+            <X />
+          </button>
+        </div>
+
         
-        <form onSubmit={handleSave} className="space-y-4">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <label className="text-gray-700 font-medium text-sm">เลือกวันที่</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="bg-gray-50 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-green-400 outline-none w-full"
-              />
-            </div>
-            <label>รายการ</label>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+         
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">รายการ</label>
             <input
-              type="text"
+              placeholder="ค่าอาหาร"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className=" bg-cream p-2 rounded text-green"
-              placeholder="ค่าอาหาร"
-            />
-            
-            <label>จำนวนเงิน</label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="bg-cream p-2 rounded text-green"
-              placeholder="0"
+              className="w-full rounded-xl bg-white px-4 py-2 focus:ring-2 focus:ring-pink outline-none"
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            
+          {/* Amount */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+            <label className="block text-sm text-gray-600 mb-1">
+              จำนวนเงิน
+            </label>
+            <input
+              type="number"
+              placeholder="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full rounded-xl bg-white px-4 py-2 focus:ring-2 focus:ring-pink outline-none"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">วันที่</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full rounded-xl bg-white px-4 py-2 focus:ring-2 focus:ring-pink outline-none"
+            />
+          </div>
+          </div>
+
+          
+          <div className="grid grid-cols-3 gap-3">
             {(["income", "expense", "saving"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`p-2 rounded-xl border ${type === t ? 'bg-pinkbloom text-white' : 'bg-gray-100'}`}
+                className={`rounded-xl py-2 text-sm font-medium transition
+                  ${
+                    type === t
+                      ? "bg-pinkold text-white shadow"
+                      : "bg-pink text-white"
+                  }`}
               >
-                {t === "income" ? "รายรับ" : t === "expense" ? "รายจ่าย" : "เงินออม"}
+                {t === "income"
+                  ? "รายรับ"
+                  : t === "expense"
+                  ? "รายจ่าย"
+                  : "เงินออม"}
               </button>
             ))}
           </div>
 
-          <button type="submit" className="w-full bg-pink text-brown p-3 rounded-xl mt-4">
+        
+          <button
+            type="submit"
+            className="w-full bg-green text-white py-3 rounded-2xl font-semibold hover:opacity-90 transition"
+          >
             บันทึก
           </button>
         </form>

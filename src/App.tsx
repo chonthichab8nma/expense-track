@@ -1,7 +1,12 @@
-import TransactionForm from "./components/TransactionForm";
+import Dashboard from "./components/Dashboard"; 
 
-export default function App() {
-  return(
-    <TransactionForm />
-  )
+function App() {
+  return (
+    <div className="App">
+   
+      <Dashboard />
+    </div>
+  );
 }
+
+export default App;

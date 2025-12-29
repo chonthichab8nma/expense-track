@@ -219,3 +219,328 @@ export default function App() {
     </div>
   );
 }
+
+
+import React, { useState } from "react";
+import {
+  Plus,
+  X,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  PiggyBank,
+  Trash2,
+} from "lucide-react";
+
+// ----------------------------------------------------------------------
+// 1. TYPE DEFINITIONS
+// ----------------------------------------------------------------------
+export type TransactionType = "income" | "expense" | "saving";
+
+export interface Transaction {
+  id: number;
+  title: string;
+  amount: number;
+  type: TransactionType;
+  date: string;
+}
+
+// ----------------------------------------------------------------------
+// 2. COMPONENT: FORM (TransactionForm - Modal Version)
+// ----------------------------------------------------------------------
+interface FormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (tx: Transaction) => void;
+}
+
+export function TransactionForm({ isOpen, onClose, onSave }: FormProps) {
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [type, setType] = useState<TransactionType>("income");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !amount) {
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    const newEntry: Transaction = {
+      id: Date.now(),
+      title,
+      amount: Number(amount),
+      type,
+      date,
+    };
+
+    onSave(newEntry);
+
+    // Reset form
+    setTitle("");
+    setAmount("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="bg-indigo-600 p-4 flex justify-between items-center">
+          <h3 className="text-white font-bold text-lg flex items-center gap-2">
+            <Plus className="w-5 h-5" /> เพิ่มรายการใหม่
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-500 mb-1 block">
+              วันที่
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-600"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-slate-500 mb-1 block">
+                รายการ
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="ค่าอาหาร"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-500 mb-1 block">
+                จำนวนเงิน
+              </label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-500 mb-2 block">
+              ประเภท
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["income", "expense", "saving"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setType(t)}
+                  className={`py-2 px-1 rounded-xl border text-sm font-medium transition-all ${
+                    type === t
+                      ? t === "income"
+                        ? "bg-emerald-500 text-white border-emerald-500"
+                        : t === "expense"
+                        ? "bg-rose-500 text-white border-rose-500"
+                        : "bg-blue-500 text-white border-blue-500"
+                      : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  {t === "income"
+                    ? "รายรับ"
+                    : t === "expense"
+                    ? "รายจ่าย"
+                    : "เงินออม"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all mt-2"
+          >
+            บันทึกรายการ
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------
+// 3. MAIN APP (Dashboard)
+// ----------------------------------------------------------------------
+export default function App() {
+  // --- Logic ที่เคยอยู่ใน useTransaction ย้ายมาไว้ตรงนี้ ---
+
+  // State หลัก: เก็บรายการทั้งหมด
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {
+      id: 1,
+      title: "ยอดยกมา",
+      amount: 5000,
+      type: "income",
+      date: "2023-10-01",
+    },
+  ]);
+
+  // State สำหรับควบคุมการเปิด/ปิด Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ฟังก์ชันเพิ่มรายการ
+  const addTransaction = (newTx: Transaction) => {
+    setTransactions((prev) => [newTx, ...prev]);
+  };
+
+  // ฟังก์ชันลบรายการ
+  const deleteTransaction = (id: number) => {
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Logic คำนวณยอดเงิน (เขียนสดใน Component)
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalSaving = transactions
+    .filter((t) => t.type === "saving")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const balance = totalIncome - totalExpense - totalSaving;
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-4 font-sans text-slate-800 pb-24 relative">
+      <div className="max-w-md mx-auto">
+        {/* Header Summary */}
+        <div className="bg-indigo-600 text-white p-6 rounded-3xl shadow-xl mb-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-10 translate-x-10 blur-2xl"></div>
+
+          <div className="relative z-10">
+            <p className="text-indigo-200 text-sm mb-1">ยอดคงเหลือสุทธิ</p>
+            <h1 className="text-4xl font-bold mb-6">
+              ฿{balance.toLocaleString()}
+            </h1>
+
+            <div className="flex justify-between text-center bg-indigo-800/40 p-4 rounded-2xl backdrop-blur-md border border-white/10">
+              <div>
+                <div className="flex items-center gap-1 text-emerald-300 text-xs mb-1 justify-center">
+                  <ArrowUpCircle size={14} /> รับ
+                </div>
+                <div className="font-bold">{totalIncome.toLocaleString()}</div>
+              </div>
+              <div className="w-[1px] bg-indigo-400/30"></div>
+              <div>
+                <div className="flex items-center gap-1 text-rose-300 text-xs mb-1 justify-center">
+                  <ArrowDownCircle size={14} /> จ่าย
+                </div>
+                <div className="font-bold">{totalExpense.toLocaleString()}</div>
+              </div>
+              <div className="w-[1px] bg-indigo-400/30"></div>
+              <div>
+                <div className="flex items-center gap-1 text-blue-300 text-xs mb-1 justify-center">
+                  <PiggyBank size={14} /> ออม
+                </div>
+                <div className="font-bold">{totalSaving.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Transaction List */}
+        <div className="space-y-3">
+          <h3 className="font-bold text-slate-700 px-1">ประวัติรายการ</h3>
+          {transactions.length === 0 ? (
+            <div className="text-center text-slate-400 py-10 border-2 border-dashed border-slate-200 rounded-xl bg-white/50">
+              ยังไม่มีรายการ
+            </div>
+          ) : (
+            transactions.map((t) => (
+              <div
+                key={t.id}
+                className="bg-white p-4 rounded-xl shadow-sm flex items-center justify-between border border-slate-100 group active:scale-[0.99] transition-transform"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                      t.type === "income"
+                        ? "bg-emerald-100 text-emerald-600"
+                        : t.type === "expense"
+                        ? "bg-rose-100 text-rose-600"
+                        : "bg-blue-100 text-blue-600"
+                    }`}
+                  >
+                    {t.type === "income" ? (
+                      <ArrowUpCircle size={24} />
+                    ) : t.type === "expense" ? (
+                      <ArrowDownCircle size={24} />
+                    ) : (
+                      <PiggyBank size={24} />
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-800">{t.title}</div>
+                    <div className="text-xs text-slate-400">{t.date}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`font-bold text-lg ${
+                      t.type === "income"
+                        ? "text-emerald-500"
+                        : t.type === "expense"
+                        ? "text-rose-500"
+                        : "text-blue-500"
+                    }`}
+                  >
+                    {t.type === "income" ? "+" : "-"}
+                    {t.amount.toLocaleString()}
+                  </span>
+                  <button
+                    onClick={() => deleteTransaction(t.id)}
+                    className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Floating Action Button (FAB) */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-300 flex items-center justify-center hover:bg-indigo-700 active:scale-90 transition-all z-40"
+        >
+          <Plus size={28} />
+        </button>
+
+        {/* Modal Form */}
+        <TransactionForm
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={addTransaction}
+        />
+      </div>
+    </div>
+  );
+}

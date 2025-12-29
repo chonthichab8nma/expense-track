@@ -1,4 +1,7 @@
-import {useState} from "react";
+import { useState,useEffect } from "react";
+
+
+
 export type TransactionType = "income" | "expense" | "saving";
 
 export interface Transaction {
@@ -10,63 +13,52 @@ export interface Transaction {
 }
 
 export function useTransaction() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const saved = localStorage.getItem("transactions");
+    return saved ? JSON.parse(saved) : [
+       {
+      id: 1,
+      title: "ยอดยกมา",
+      amount: 5000,
+      type: "income",
+      date: "2023-10-01",
+    },
+    ];
+  });
+   useEffect(() => {
+  localStorage.setItem("transactions",JSON.stringify(transactions));
+},[transactions])
 
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [type, setType] = useState<TransactionType>("income");
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const resetForm = () => {
-    setTitle("");
-    setAmount("");
-    setType("income");
-    setDate(new Date().toISOString().split('T')[0]);
+    
+  const addTransaction = (tx: Transaction) => {
+    setTransactions((prev) => [tx, ...prev]);
   };
-  
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !amount) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
 
-    const newEntry: Transaction = {
-      id: Date.now(),
-      title,
-      amount: Number(amount),
-      type,
-      date,
-    };
-
-    setTransactions([newEntry, ...transactions]); 
-    resetForm();
-
-    console.log("บันทึก:", newEntry);
-    resetForm();
-    alert("บันทึกสำเร็จ!");
+  const deleteTransaction = (id: number) => {
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
+
   const totalIncome = transactions
-    .filter(t => t.type === "income")
+    .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalExpense = transactions
-    .filter(t => t.type === "expense")
+    .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalSaving = transactions
-    .filter(t => t.type === "saving")
+    .filter((t) => t.type === "saving")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const balance = totalIncome - totalExpense; // ยอดคงเหลือ
+  const balance = totalIncome - totalExpense - totalSaving;
 
   return {
-    transactions, 
-    balance, totalIncome, totalExpense, totalSaving,
-    // handleSave,
-    title, setTitle,
-    amount, setAmount,
-    type, setType,
-    date,setDate,
-    handleSave
+    transactions,
+    addTransaction,
+    deleteTransaction,
+    totalIncome,
+    totalExpense,
+    totalSaving,
+    balance,
   };
 }

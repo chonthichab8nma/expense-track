@@ -2,14 +2,18 @@
 @plugin "daisyui";
 
 @theme {
-    --color-green: #838E66;
+    /* --color-green: #838E66; */
     /* --color-brown: #45403A; */
-    --color-brown: #45403A;
+    /* --color-brown: #45403A; */
     /* --color-cream: #E7E2BD; */
-    --color-cream: #F3EBD8;
-    --color-pink: #EEC3CD;
-    --color-pinkbloom: #F397A0;
+    /* --color-cream: #F3EBD8; */
+    /* --color-pink: #EEC3CD; */
+    /* --color-pinkbloom: #F397A0;
     --color-greenbloom: #B6BB79;
     --color-pink1: #F9D0CE;
-    --color-cream1: #F3EBD8;
+    --color-cream1: #F3EBD8; */
+    --color-green: #abb382;
+    --color-pink: #fad4d3;
+    --color-pinkold: #f3a0a8;
+    --color-cream: #F3EBD8;
 }
