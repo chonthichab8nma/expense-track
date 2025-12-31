@@ -12,8 +12,14 @@
     --color-greenbloom: #B6BB79;
     --color-pink1: #F9D0CE;
     --color-cream1: #F3EBD8; */
-    --color-green: #abb382;
-    --color-pink: #fad4d3;
+    /* --color-green: #abb382; */
+    --color-greenpas: #bbecca;
+    /* --color-pink: #fad4d3; */
+    --color-pink: #ffe2e9;
     --color-pinkold: #f3a0a8;
-    --color-cream: #F3EBD8;
+    /* --color-cream: #F3EBD8; */
+    --color-cream: #fffdf4;
+    --color-green: #b5d79b;
+    --color-blue: #B7e6DC;
+    --color-greenold: #1f5809;
 }

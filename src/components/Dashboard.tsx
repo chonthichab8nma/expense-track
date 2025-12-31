@@ -119,13 +119,13 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 pb-24 font-sans text-slate-900">
       <div className="max-w-md mx-auto">
-        <div className="bg-indigo-600 text-white p-6 rounded-3xl mb-4 shadow-lg shadow-indigo-200">
+        <div className="bg-[#fffdf4] text-black p-6 rounded-3xl mb-4 shadow-lg shadow-green">
           <p className="text-sm opacity-80 mb-1">ยอดคงเหลือสุทธิ</p>
           <h1 className="text-4xl font-bold mb-6">
             ฿{balance.toLocaleString()}
           </h1>
 
-          <div className="grid grid-cols-3 gap-2 text-sm bg-indigo-700/30 p-3 rounded-2xl backdrop-blur-sm">
+          <div className="grid grid-cols-3 gap-2 text-sm bg-pink p-3 rounded-2xl backdrop-blur-sm">
             <div className="flex flex-col items-center">
               <span className="flex items-center gap-1 opacity-80 mb-1">
                 <ArrowUpCircle size={14} /> รับ
@@ -157,8 +157,8 @@ export default function Dashboard() {
             onClick={togglePeriod}
             className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all shadow-sm ${
               enablePeriodFilter
-                ? "bg-indigo-600 text-white border-indigo-600"
-                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                ? "bg-green text-[#1f5809] border-green"
+                : "bg-cream text-[#1f5809] border-slate-200 hover:bg-green"
             }`}
           >
             <CalendarDays size={18} />
@@ -179,8 +179,8 @@ export default function Dashboard() {
                 onClick={() => setFilter(f.key)}
                 className={`py-2 rounded-xl border text-xs font-medium transition-all shadow-sm ${
                   filter === f.key
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    ? "bg-green text-[#1f5809] border-green"
+                    : "bg-cream text-[#1f5809] border-slate-200 hover:bg-green"
                 }`}
               >
                 {f.label}
@@ -189,13 +189,13 @@ export default function Dashboard() {
           </div>
         </div>
         {enablePeriodFilter && (
-          <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm mb-4 animate-in slide-in-from-top-2 fade-in duration-200">
+          <div className="bg-cream p-3 rounded-2xl border border-cream shadow-sm mb-4 animate-in slide-in-from-top-2 fade-in duration-200">
             <div className="flex gap-2">
               {(period === "year" || period === "month") && (
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 rounded-xl border border-pink px-3 py-2 text-sm bg-pink text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   {[2023, 2024, 2025].map((y) => (
                     <option key={y} value={y}>
@@ -208,7 +208,7 @@ export default function Dashboard() {
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 rounded-xl border border-pink px-3 py-2 text-sm bg-pink focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                     <option key={m} value={m}>
@@ -223,18 +223,18 @@ export default function Dashboard() {
               <div className="relative">
                 <button
                   onClick={() => setShowCalendar((p) => !p)}
-                  className="flex items-center justify-between w-full rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 text-sm hover:bg-slate-100 transition-colors"
+                  className="flex items-center justify-between w-full rounded-xl border border-pink px-3 py-2 bg-pink text-sm transition-colors"
                 >
                   <span className="font-medium">วันที่: {selectedDate}</span>
                   {showCalendar ? (
                     <X size={16} />
                   ) : (
-                    <CalendarDays size={16} className="text-indigo-600" />
+                    <CalendarDays size={16} className="text-pinkold" />
                   )}
                 </button>
 
                 {showCalendar && (
-                  <div className="absolute top-full left-0 z-20 mt-2 w-full shadow-xl rounded-2xl border border-slate-200 overflow-hidden">
+                  <div className="absolute top-full left-0 z-20 mt-2 w-full shadow-xl rounded-2xl border border-pink overflow-hidden">
                     <Calendar
                       onChange={(date) => {
                         setSelectedDate(formatDate(date as Date));
@@ -258,15 +258,15 @@ export default function Dashboard() {
             filteredTransactions.map((t) => (
               <div
                 key={t.id}
-                className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow"
+                className="bg-cream p-4 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-full ${
                       t.type === "income"
-                        ? "bg-green-100 text-green-600"
+                        ? "bg-green text-greenold"
                         : t.type === "expense"
-                        ? "bg-red-100 text-red-600"
+                        ? "bg-pink text-pinkold"
                         : "bg-indigo-100 text-indigo-600"
                     }`}
                   >
@@ -286,9 +286,9 @@ export default function Dashboard() {
                   <span
                     className={`font-bold text-lg ${
                       t.type === "income"
-                        ? "text-green-600"
+                        ? "text-green"
                         : t.type === "expense"
-                        ? "text-red-600"
+                        ? "text-pinkold"
                         : "text-indigo-600"
                     }`}
                   >
