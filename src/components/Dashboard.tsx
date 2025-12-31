@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import "../index.css"
 
 import { useTransaction } from "./useTransaction";
 import { TransactionForm } from "./TransactionForm";
@@ -234,14 +235,14 @@ export default function Dashboard() {
                 </button>
 
                 {showCalendar && (
-                  <div className="absolute top-full left-0 z-20 mt-2 w-full shadow-xl rounded-2xl border border-pink overflow-hidden">
+                  <div className="absolute top-full z-20 mt-2 left-0.5 shadow-xl rounded-2xl  overflow-hidden p-2 bg-pink">
                     <Calendar
                       onChange={(date) => {
                         setSelectedDate(formatDate(date as Date));
                         setShowCalendar(false);
                       }}
                       value={new Date(selectedDate)}
-                      className="border-none w-full"
+                      // locale="th-TH"
                     />
                   </div>
                 )}
@@ -264,10 +265,10 @@ export default function Dashboard() {
                   <div
                     className={`p-2 rounded-full ${
                       t.type === "income"
-                        ? "bg-green text-greenold"
+                        ? "bg-[#dcf1cf] text-[#a0c782]"
                         : t.type === "expense"
                         ? "bg-pink text-pinkold"
-                        : "bg-indigo-100 text-indigo-600"
+                        : "bg-[#fff2c9] text-[#F4D77B]"
                     }`}
                   >
                     {t.type === "income" && <ArrowUpCircle size={20} />}
@@ -276,7 +277,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <div className="font-bold text-slate-800">{t.title}</div>
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-[#F4D77B] font-medium">
                       {t.date}
                     </div>
                   </div>
@@ -286,10 +287,10 @@ export default function Dashboard() {
                   <span
                     className={`font-bold text-lg ${
                       t.type === "income"
-                        ? "text-green"
+                        ? "text-[#a0c782]"
                         : t.type === "expense"
                         ? "text-pinkold"
-                        : "text-indigo-600"
+                        : "text-[#F4D77B]"
                     }`}
                   >
                     {t.type === "expense" ? "-" : "+"}
@@ -298,7 +299,7 @@ export default function Dashboard() {
 
                   <button
                     onClick={() => deleteTransaction(t.id)}
-                    className="text-slate-300 hover:text-red-500 transition-colors"
+                    className="text-[#F4D77B] hover:text-pinkold transition-colors"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -310,7 +311,7 @@ export default function Dashboard() {
 
         {filteredTransactions.length > 0 && (
           <div className="mt-6 text-center">
-            <div className="inline-block px-4 py-2 bg-slate-200 rounded-full text-sm font-bold text-slate-600">
+            <div className="inline-block px-4 py-2 bg-pink rounded-full text-sm font-bold text-pinkold">
               ยอดรวมตามตัวกรอง: ฿{totalByFilter.toLocaleString()}
             </div>
           </div>
@@ -318,7 +319,7 @@ export default function Dashboard() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-300 transition-all hover:scale-110 active:scale-95 z-30"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-pink hover:bg-pinkold text-black rounded-full flex items-center justify-center shadow-lg shadow-green transition-all hover:scale-110 active:scale-95 z-30"
         >
           <Plus size={28} />
         </button>
