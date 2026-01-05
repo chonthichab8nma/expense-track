@@ -221,7 +221,7 @@ export default function Dashboard() {
             </div>
 
             {period === "day" && (
-              <div className="relative">
+              <div className="flex relative">
                 <button
                   onClick={() => setShowCalendar((p) => !p)}
                   className="flex items-center justify-between w-full rounded-xl border border-pink px-3 py-2 bg-pink text-sm transition-colors"
@@ -235,7 +235,7 @@ export default function Dashboard() {
                 </button>
 
                 {showCalendar && (
-                  <div className="absolute top-full z-20 mt-2 left-0.5 shadow-xl rounded-2xl  overflow-hidden p-2 bg-pink">
+                  <div className=" absolute top-full z-20 mt-2 left-1/2 -translate-x-1/2 w-80 shadow-xl rounded-2xl  overflow-hidden p-2 bg-pink">
                     <Calendar
                       onChange={(date) => {
                         setSelectedDate(formatDate(date as Date));
